@@ -21,7 +21,7 @@ public class BallSpawner : MonoBehaviour {
     public static BallSpawner current;
 
     public GameObject pooledBall; //the prefab of the object in the object pool
-    public int ballsAmount = 20; //the number of objects you want in the object pool
+    public int ballsAmount = 40; //the number of objects you want in the object pool
     public static int ballPoolNum = 0; //a number used to cycle through the pooled objects
 
     private float cooldown;
@@ -56,7 +56,8 @@ public class BallSpawner : MonoBehaviour {
             foreach(var comp in pooledBalls) {             
                 // If the object is not active...              
                 if(!comp.GetBall.activeSelf) {                 
-                    // return that one.          
+                    // return that one.
+                    DebugManager.Info("Returning existing Ball");   
                     return comp;             
                 } 
             }
@@ -65,11 +66,15 @@ public class BallSpawner : MonoBehaviour {
             GameObject obj = Instantiate(pooledBall);
             var returnComponent = new SpawnedBallComponents(obj);
             pooledBalls.Add(returnComponent);       
-            returnComponent.GetBall.SetActive(false);        
-            return returnComponent;     
+            returnComponent.GetBall.SetActive(false);
+
+            DebugManager.Info("Returning new Ball");
+
+            return returnComponent;
         } else { 
+            DebugManager.Info("Returning existing Ball");
             return pooledBalls[ballPoolNum];     
-        } 
+        }
     } 
    	
 	void Update () {
@@ -90,5 +95,13 @@ public class BallSpawner : MonoBehaviour {
         selectedRigidbody.velocity = Vector3.zero;
         selectedRigidbody.angularVelocity = Vector3.zero;
         selectedBall.SetActive(true);
-    }
+
+        StartCoroutine(TemporaryBall(selectedBall)); 
+    } 
+ 
+public IEnumerator TemporaryBall(GameObject selectedBall) {     
+    // After a period of time, destroy the ball.
+    DebugManager.Info("Disposing ball in " + ballsAmount * cooldownLength);
+    yield return new WaitForSeconds(ballsAmount * cooldownLength);     
+    selectedBall.SetActive(false); } 
 }
