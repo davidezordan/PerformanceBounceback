@@ -27,4 +27,5 @@ Scenes required (the order should be respected):
 
 # Versions Used
 - [Unity 2018.3.4](https://unity3d.com/unity/whats-new/2018.3.4)
-- [SteamVR Unity plugin v2.2.0](https://github.com/ValveSoftware/steamvr_unity_plugin/tree/master/Assets/SteamVR)
+- [SteamVR Unity plugin v2.2.0](https://github.com/ValveSoftware/steamvr_unity_plugin/releases)
+- [Udacity Performance Bounceback starter project](https://github.com/udacity/Performance-Bounceback-Starter-Project)
