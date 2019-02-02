@@ -29,7 +29,7 @@ void Start()
     text = GetComponent<Text>();
     if( !text )
     {
-        Debug.Log("UtilityFramesPerSecond needs a GUIText component!");
+        DebugManager.Info("UtilityFramesPerSecond needs a GUIText component!");
         enabled = false;
         return;
     }
