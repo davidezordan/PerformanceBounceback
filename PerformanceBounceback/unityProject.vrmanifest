@@ -5,6 +5,7 @@
       "app_key": "application.generated.unity.performancebounceback.exe",
       "launch_type": "url",
       "url": "steam://launch/",
+      "action_manifest_path": "E:\\Source\\Udacity\\PerformanceBounceback\\PerformanceBounceback\\actions.json",
       "strings": {
         "en_us": {
           "name": "PerformanceBounceback [Testing]"

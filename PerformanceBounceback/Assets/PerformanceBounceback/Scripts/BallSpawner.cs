@@ -17,15 +17,16 @@ public class SpawnedBallComponents {
 }
 
 public class BallSpawner : MonoBehaviour {
-    private List<SpawnedBallComponents> pooledBalls; //the object pool
+    private List<SpawnedBallComponents> _pooledBalls;
+    private float _cooldown;
+    private float _cooldownLength = 0.5f;
     public static BallSpawner current;
 
-    public GameObject pooledBall; //the prefab of the object in the object pool
+    public GameObject pooledBallPrefab; 
     public int ballsAmount = 40; //the number of objects you want in the object pool
     public static int ballPoolNum = 0; //a number used to cycle through the pooled objects
 
-    private float cooldown;
-    private float cooldownLength = 0.5f;
+    public bool IsSpawningActive = true;
 
     void Awake()
     {
@@ -34,26 +35,26 @@ public class BallSpawner : MonoBehaviour {
 
     void Start()
     {
-        pooledBalls = new List<SpawnedBallComponents>();
+        _pooledBalls = new List<SpawnedBallComponents>();
         for (int i = 0; i < ballsAmount; i++)
         {
-            GameObject obj = Instantiate(pooledBall);
+            GameObject obj = Instantiate(pooledBallPrefab);
             obj.SetActive(false);
 
-            pooledBalls.Add(new SpawnedBallComponents(obj));
+            _pooledBalls.Add(new SpawnedBallComponents(obj));
         }
     }
 
     public SpawnedBallComponents GetPooledBall() {     
         ballPoolNum++;      
         
-        if(ballPoolNum >= pooledBalls.Count) {         
+        if(ballPoolNum >= _pooledBalls.Count) {         
             // Reset it to 0 if the number is larger than the number of objects we have in the pool.         
             ballPoolNum = 0;      
         }  
  
-        if (pooledBalls[ballPoolNum].GetBall.activeSelf) {         
-            foreach(var comp in pooledBalls) {             
+        if (_pooledBalls[ballPoolNum].GetBall.activeSelf) {         
+            foreach(var comp in _pooledBalls) {             
                 // If the object is not active...              
                 if(!comp.GetBall.activeSelf) {                 
                     // return that one.
@@ -63,9 +64,9 @@ public class BallSpawner : MonoBehaviour {
             }
 
             // If it gets down here, we have no available objects in the pool.         
-            GameObject obj = Instantiate(pooledBall);
+            GameObject obj = Instantiate(pooledBallPrefab);
             var returnComponent = new SpawnedBallComponents(obj);
-            pooledBalls.Add(returnComponent);       
+            _pooledBalls.Add(returnComponent);       
             returnComponent.GetBall.SetActive(false);
 
             DebugManager.Info("Returning new Ball");
@@ -73,15 +74,19 @@ public class BallSpawner : MonoBehaviour {
             return returnComponent;
         } else { 
             DebugManager.Info("Returning existing Ball");
-            return pooledBalls[ballPoolNum];     
+            return _pooledBalls[ballPoolNum];     
         }
     } 
    	
 	void Update () {
-        cooldown -= Time.deltaTime;
-        if(cooldown <= 0)
+        if (!IsSpawningActive) {
+            return;
+        }
+
+        _cooldown -= Time.deltaTime;
+        if(_cooldown <= 0)
         {
-            cooldown = cooldownLength;
+            _cooldown = _cooldownLength;
             SpawnBall();
         }		
 	}
@@ -99,9 +104,18 @@ public class BallSpawner : MonoBehaviour {
         StartCoroutine(TemporaryBall(selectedBall)); 
     } 
  
-public IEnumerator TemporaryBall(GameObject selectedBall) {     
-    // After a period of time, destroy the ball.
-    DebugManager.Info("Disposing ball in " + ballsAmount * cooldownLength);
-    yield return new WaitForSeconds(ballsAmount * cooldownLength);     
-    selectedBall.SetActive(false); } 
+    public IEnumerator TemporaryBall(GameObject selectedBall) {     
+        // After a period of time, destroy the ball.
+        DebugManager.Info("Disposing ball in " + ballsAmount * _cooldownLength);
+        yield return new WaitForSeconds(ballsAmount * _cooldownLength);     
+        selectedBall.SetActive(false); 
+    }
+
+    public void Initialize() {
+        foreach(var ball in _pooledBalls) {
+            ball.GetBall.SetActive(false);
+        }
+
+        IsSpawningActive = true;
+    }
 }

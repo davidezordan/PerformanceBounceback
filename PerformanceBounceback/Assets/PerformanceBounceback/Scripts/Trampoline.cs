@@ -3,33 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Trampoline : MonoBehaviour {
+    private ParticleSystem pSystem;
+    private AudioSource audioSource;
+    private string throwableTag = "Throwable";
+    public GameManager gameManager;
+    public AudioClip ballHitSound;
 
-    public ParticleSystem pSystem;
-    public GameManager scoreScript;
-
-	// Use this for initialization
 	void Start () {
-		
+        audioSource = GetComponent<AudioSource>();
+        pSystem = GetComponentInChildren<ParticleSystem>();
 	}
 	
-	// Update is called once per frame
-	void Update () {
-        scoreScript = GameObject.Find("GameManager").GetComponent<GameManager>();
-        pSystem = GetComponentInChildren<ParticleSystem>();
-
-	}
-
     void OnCollisionEnter(Collision col)
     {
-        if (col.gameObject.CompareTag("Throwable"))
+        if (col.gameObject.CompareTag(throwableTag))
         {
-            //Score Point
-            scoreScript.score++;
-            //Particle effect
+            gameManager.IncrementScore();
+
             pSystem.Play();
 
-            DebugManager.Info("Trampoline Hit");
+            audioSource.PlayOneShot(ballHitSound);
         }
-
     }
 }
